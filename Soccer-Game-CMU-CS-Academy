@@ -1,0 +1,123 @@
+app.background = 'white'
+app.stepsPerSecond = 30
+
+# board and lines
+Rect(200, 200, 295, 375, fill='springGreen', align='center')
+Circle(200, 10, 40, fill=None, border='white', borderWidth=3)
+Circle(200, 390, 40, fill=None, border='white', borderWidth=3)
+Rect(200, 5, 90, 10, fill=app.background, align='center')
+Rect(200, 395, 90, 10, fill=app.background, align='center')
+Line(50, 85, 350, 85, fill='white')
+Line(50, 305, 350, 305, fill='white')
+Line(50, 200, 350, 200, fill='azure', dashes=True)
+Circle(200, 200, 25, fill='white', border='azure')
+Circle(200, 200, 3, fill='springGreen')
+
+# border
+Circle(60, 20, 10, fill=None, border='white', borderWidth=5)
+Circle(340, 20, 10, fill=None, border='white', borderWidth=5)
+Circle(60, 380, 10, fill=None, border='white', borderWidth=5)
+Circle(340, 380, 10, fill=None, border='white', borderWidth=5)
+Circle(65, 25, 13, fill='springGreen')
+Circle(335, 25, 13, fill='springGreen')
+Circle(65, 375, 13, fill='springGreen')
+Circle(335, 375, 13, fill='springGreen')
+Line(60, 10, 340, 10, fill='white', lineWidth=5)
+Line(50, 20, 50, 380, fill='white', lineWidth=5)
+Line(350, 20, 350, 380, fill='white', lineWidth=5)
+Line(60, 390, 340, 390, fill='white', lineWidth=5)
+
+# score for messi
+messi1 = Label(0, 25, 360, fill='royalBlue', size=30)
+
+# score for ronaldo
+ronaldo1 = Label(0, 375, 40, fill='fireBrick', size=30)
+
+# ball
+ball = Circle(200, 200, 10, fill='snow', border='grey')
+ball.dx = 3
+ball.dy = 3
+ball.numHits = 0
+
+messi = Group(
+    Circle(200, 365, 12, fill='royalBlue'),
+    Circle(200, 365, 8, fill='cornflowerBlue')
+    )
+ronaldo = Group(
+    Circle(200, 35, 12, fill='fireBrick'),
+    Circle(200, 35, 8, fill='crimson')
+    )
+
+def resetBall():
+    ball.centerX = 200
+    ball.centerY = 200
+    ball.dx = 3
+    ball.dy = 3
+    ball.numHits = 0
+
+def hitBall(paddle):
+    
+    if (ball.centerX - paddle.centerX >= 4):
+        ball.dx = 3 + ball.numHits
+    elif (paddle.centerX - ball.centerX >= 4):
+        ball.dx = -3 - ball.numHits
+    else:
+        ball.dx = 0
+
+    
+    if (ball.centerY - paddle.centerY >= 6):
+        ball.dy = 3 + ball.numHits
+    elif (paddle.centerY - ball.centerY >= 6):
+        ball.dy = -3 - ball.numHits
+
+    if (ball.numHits <= 10):
+        ball.numHits += 1
+
+def onMouseMove(mouseX, mouseY):
+    if ((mouseX >= 60) and (mouseX <= 340) and (mouseY > 200)):
+        messi.centerX = mouseX
+        messi.centerY = mouseY
+
+def onKeyPress(key):
+    if (key == 'r'):
+        resetBall()
+        
+def onKeyHold(key):
+    if('right'in key):
+        messi.centerX +=2
+    if('left' in key):
+        messi.centerX -=2
+
+def onStep():
+    ball.centerX += ball.dx
+    ball.centerY += ball.dy
+
+  
+    if ((ball.centerX >= 165) and (ball.centerX <= 235) and
+        ((ball.centerY <= 20) or (ball.centerY >= 380))):
+        if (ball.centerY <= 20):
+            messi1.value += 1
+        elif (ball.centerY >= 380):
+            ronaldo1.value += 1
+
+        resetBall()
+
+   
+    if ((ball.centerX <= 60) or (ball.centerX >= 340)):
+        ball.dx *= -1
+    if ((ball.centerY <= 20) or (ball.centerY >= 380)):
+        ball.dy *= -1
+    
+    if (ball.centerX - ronaldo.centerX < 0):
+        ronaldo.centerX -= 5
+    elif (ball.centerX - ronaldo.centerX > 0):
+        ronaldo.centerX += 5
+    if (ronaldo.centerX < 135):
+        ronaldo.centerX = 135
+    elif (ronaldo.centerX > 265):
+        ronaldo.centerX = 265
+
+    if (ball.hitsShape(messi) == True):
+        hitBall(messi)
+    if (ronaldo.hitsShape(ball) == True):
+        hitBall(ronaldo)
